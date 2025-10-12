@@ -31,3 +31,10 @@ asr-label*
 /faster_whisper
 /.gradio
 *log
+
+# API server runtime files
+s1_mini_api.pid
+s1_mini_api.log
+
+# Output directory for TTS files
+/outputs

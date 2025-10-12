@@ -48,6 +48,10 @@ class BaseModelArgs:
     tie_word_embeddings: bool = True
     attention_qkv_bias: bool = False
 
+    # S1-Mini new parameters
+    attention_o_bias: bool = False
+    attention_qk_norm: bool = False
+
     # Codebook configs
     codebook_size: int = 160
     num_codebooks: int = 4
@@ -70,7 +74,9 @@ class BaseModelArgs:
             hidden_dim = 4 * self.dim
             n_hidden = int(2 * hidden_dim / 3)
             self.intermediate_size = find_multiple(n_hidden, 256)
-        self.head_dim = self.dim // self.n_head
+        # Only compute head_dim if not explicitly set (for S1-Mini compatibility)
+        if self.head_dim == 64:  # default value
+            self.head_dim = self.dim // self.n_head
 
     @staticmethod
     def from_pretrained(path: str):
@@ -113,6 +119,10 @@ class DualARModelArgs(BaseModelArgs):
     fast_intermediate_size: int | None = None
     fast_attention_qkv_bias: bool | None = None
 
+    # S1-Mini new parameters for fast transformer
+    fast_attention_o_bias: bool = False
+    fast_attention_qk_norm: bool = False
+
     def __post_init__(self):
         super().__post_init__()
 
@@ -128,6 +138,12 @@ class DualARModelArgs(BaseModelArgs):
             if self.fast_attention_qkv_bias is not None
             else self.attention_qkv_bias
         )
+
+        # Set defaults for new S1-Mini parameters if not specified
+        if not hasattr(self, 'fast_attention_o_bias'):
+            self.fast_attention_o_bias = self.attention_o_bias
+        if not hasattr(self, 'fast_attention_qk_norm'):
+            self.fast_attention_qk_norm = self.attention_qk_norm
 
 
 class KVCache(nn.Module):
@@ -716,7 +732,9 @@ class Attention(nn.Module):
         self.wqkv = nn.Linear(
             config.dim, total_head_dim, bias=config.attention_qkv_bias
         )
-        self.wo = nn.Linear(config.dim, config.dim, bias=False)
+        # Output projection - for S1-Mini, head_dim can be different from dim // n_head
+        attn_out_dim = config.n_head * config.head_dim
+        self.wo = nn.Linear(attn_out_dim, config.dim, bias=config.attention_o_bias)
         self.kv_cache = None
 
         self.dropout = config.dropout
@@ -724,6 +742,7 @@ class Attention(nn.Module):
         self.head_dim = config.head_dim
         self.n_local_heads = config.n_local_heads
         self.dim = config.dim
+        self.attn_out_dim = attn_out_dim
         self.use_sdpa = use_sdpa
         self._register_load_state_dict_pre_hook(self.load_hook)
 
@@ -744,7 +763,8 @@ class Attention(nn.Module):
         bsz, seqlen, _ = x.shape
 
         kv_size = self.n_local_heads * self.head_dim
-        q, k, v = self.wqkv(x).split([self.dim, kv_size, kv_size], dim=-1)
+        q_size = self.n_head * self.head_dim
+        q, k, v = self.wqkv(x).split([q_size, kv_size, kv_size], dim=-1)
 
         q = q.view(bsz, seqlen, self.n_head, self.head_dim)
         k = k.view(bsz, seqlen, self.n_local_heads, self.head_dim)
@@ -789,7 +809,7 @@ class Attention(nn.Module):
                 dropout_p=self.dropout if self.training else 0.0,
             )
 
-        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, self.dim)
+        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, self.attn_out_dim)
 
         return self.wo(y)
 

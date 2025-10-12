@@ -61,8 +61,10 @@ class ModelManager:
         )
 
         # Warm up the models
-        if self.mode == "tts":
-            self.warm_up(self.tts_inference_engine)
+        # Temporarily disabled due to shape mismatch in S1-Mini
+        # if self.mode == "tts":
+        #     self.warm_up(self.tts_inference_engine)
+        logger.info("Skipping warm-up for S1-Mini compatibility")
 
     def load_asr_model(self, device, hub="ms") -> None:
         self.asr_model = AutoModel(

@@ -1,7 +1,10 @@
 import io
 import os
 import time
+import uuid
 from http import HTTPStatus
+from pathlib import Path
+from datetime import datetime
 
 import numpy as np
 import ormsgpack
@@ -36,6 +39,15 @@ from tools.server.model_utils import (
 )
 
 MAX_NUM_SAMPLES = int(os.getenv("NUM_SAMPLES", 1))
+
+# 输出目录配置
+OUTPUT_DIR = Path(os.getenv("FISH_OUTPUT_DIR", "./outputs"))
+SAVE_AUDIO = os.getenv("FISH_SAVE_AUDIO", "false").lower() == "true"
+
+# 初始化输出目录
+if SAVE_AUDIO:
+    OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+    logger.info(f"Audio files will be saved to: {OUTPUT_DIR.absolute()}")
 
 routes = Routes()
 
@@ -133,6 +145,8 @@ async def tts(req: Annotated[ServeTTSRequest, Body(exclusive=True)]):
         )
 
     # Perform TTS
+    start_time = time.time()
+
     if req.streaming:
         return StreamResponse(
             iterable=inference_async(req, engine),
@@ -151,13 +165,122 @@ async def tts(req: Annotated[ServeTTSRequest, Body(exclusive=True)]):
             format=req.format,
         )
 
-        return StreamResponse(
-            iterable=buffer_to_async_generator(buffer.getvalue()),
-            headers={
-                "Content-Disposition": f"attachment; filename=audio.{req.format}",
-            },
-            content_type=get_content_type(req.format),
+        audio_data = buffer.getvalue()
+        duration = len(fake_audios) / sample_rate
+        inference_time = (time.time() - start_time) * 1000
+
+        logger.info(f"[TTS] Generated {duration:.2f}s audio in {inference_time:.0f}ms")
+
+        # 如果启用了文件保存，保存到本地并返回 JSON
+        if SAVE_AUDIO:
+            # 生成唯一文件名
+            output_filename = f"output_{uuid.uuid4().hex[:8]}.{req.format}"
+            output_path = OUTPUT_DIR / output_filename
+
+            # 保存音频文件
+            with open(output_path, "wb") as f:
+                f.write(audio_data)
+
+            logger.info(f"[TTS] Saved audio to: {output_path}")
+
+            # 返回 JSON 响应（类似 F5-TTS）
+            return JSONResponse({
+                "success": True,
+                "message": "TTS generation successful",
+                "audio_url": f"/download/{output_filename}",
+                "audio_path": str(output_path),
+                "sample_rate": sample_rate,
+                "duration": duration,
+                "format": req.format,
+                "inference_time_ms": inference_time,
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            # 默认行为：直接返回音频流
+            return StreamResponse(
+                iterable=buffer_to_async_generator(audio_data),
+                headers={
+                    "Content-Disposition": f"attachment; filename=audio.{req.format}",
+                },
+                content_type=get_content_type(req.format),
+            )
+
+
+@routes.http.get("/download/{filename}")
+async def download_file(filename: str):
+    """
+    下载生成的音频文件
+
+    仅在 FISH_SAVE_AUDIO=true 时可用
+    """
+    if not SAVE_AUDIO:
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND,
+            content="File download is disabled. Set FISH_SAVE_AUDIO=true to enable.",
         )
+
+    file_path = OUTPUT_DIR / filename
+
+    if not file_path.exists():
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND,
+            content=f"File not found: {filename}",
+        )
+
+    # 读取文件
+    with open(file_path, "rb") as f:
+        file_data = f.read()
+
+    # 根据文件扩展名确定 Content-Type
+    suffix = file_path.suffix.lower()
+    content_type = get_content_type(suffix.lstrip("."))
+
+    logger.info(f"[DOWNLOAD] Serving file: {filename}")
+
+    return StreamResponse(
+        iterable=buffer_to_async_generator(file_data),
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+        },
+        content_type=content_type,
+    )
+
+
+@routes.http.get("/files")
+async def list_files():
+    """
+    列出所有已生成的音频文件
+
+    仅在 FISH_SAVE_AUDIO=true 时可用
+    """
+    if not SAVE_AUDIO:
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND,
+            content="File management is disabled. Set FISH_SAVE_AUDIO=true to enable.",
+        )
+
+    files = []
+    for file_path in OUTPUT_DIR.iterdir():
+        if file_path.is_file():
+            stat = file_path.stat()
+            files.append({
+                "filename": file_path.name,
+                "path": str(file_path),
+                "size": stat.st_size,
+                "created_time": datetime.fromtimestamp(stat.st_ctime).isoformat(),
+                "modified_time": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+            })
+
+    # 按修改时间倒序排列
+    files.sort(key=lambda x: x["modified_time"], reverse=True)
+
+    logger.info(f"[FILES] Listed {len(files)} files")
+
+    return JSONResponse({
+        "files": files,
+        "count": len(files),
+        "output_dir": str(OUTPUT_DIR.absolute())
+    })
 
 
 @routes.http.post("/v1/chat")
