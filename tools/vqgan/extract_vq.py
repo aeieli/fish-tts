@@ -46,8 +46,8 @@ logger.add(sys.stderr, format=logger_format)
 
 @lru_cache(maxsize=1)
 def get_model(
-    config_name: str = "firefly_gan_vq",
-    checkpoint_path: str = "checkpoints/fish-speech-1.5/firefly-gan-vq-fsq-8x1024-21hz-generator.pth",
+    config_name: str = "modded_dac_vq",
+    checkpoint_path: str = "checkpoints/openaudio-s1-mini/codec.pth",
     device: str | torch.device = "cuda",
 ):
     with initialize(version_base="1.3", config_path="../../fish_speech/configs"):
@@ -95,10 +95,8 @@ def process_batch(files: list[Path], model) -> float:
         if wav.shape[0] > 1:
             wav = wav.mean(dim=0, keepdim=True)
 
-        wav = torchaudio.functional.resample(
-            wav.cuda(), sr, model.spec_transform.sample_rate
-        )[0]
-        total_time += len(wav) / model.spec_transform.sample_rate
+        wav = torchaudio.functional.resample(wav.cuda(), sr, model.sample_rate)[0]
+        total_time += len(wav) / model.sample_rate
         max_length = max(max_length, len(wav))
 
         wavs.append(wav)
@@ -135,10 +133,10 @@ def process_batch(files: list[Path], model) -> float:
 @click.command()
 @click.argument("folder")
 @click.option("--num-workers", default=1)
-@click.option("--config-name", default="firefly_gan_vq")
+@click.option("--config-name", default="modded_dac_vq")
 @click.option(
     "--checkpoint-path",
-    default="checkpoints/fish-speech-1.5/firefly-gan-vq-fsq-8x1024-21hz-generator.pth",
+    default="checkpoints/openaudio-s1-mini/codec.pth",
 )
 @click.option("--batch-size", default=64)
 @click.option("--filelist", default=None, type=Path)

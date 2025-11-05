@@ -1,56 +1,39 @@
 # サンプル
 
-v1.4デモは[こちら](https://speech.fish.audio/samples/)に更新されています
+## 感情制御（*新機能）
 
-v1.2のサンプルは[Bilibili](https://www.bilibili.com/video/BV1wz421B71D/)で利用可能です。
+### 基本感情サンプル
 
-以下のサンプルはv1.1モデルからのものです。
+| 感情タイプ | 言語 | 入力音声 | 合成音声 | プロンプト |
+|-----------|------|----------|----------|-----------|
+| **嬉しい** | 中国語 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/happy_refer.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/happy.wav" /> | (happy)嘿嘿...博士，悄悄告诉你一件事——我重新开始练小提琴了。 |
+| **嫌悪** | 日本語 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/ref.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/disgusted.wav" /> | (digusted)あなたは、本当に気持ち悪い、嫌い…(disgusted)それでも、慰めを求めますの？ |
+| **怒り** | 英語 | - | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/en/angry.wav" /> | (angry)I want you to go out immediately! I don't want to see you again, or I will try to kill you! |
+| **怒り** | 中国語 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/作战中4.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/angry.wav" /> | (angry)我让你快滚，你是耳聋吗？！...(angry)信不信我揍你！ |
+| **驚き** | 中国語 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/ref1.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/surprised.wav" /> | (surprised)今天你过生日？既然这样的话，我就勉为其难祝你生日快乐吧。(surprised)要不要看看你的桌子底下？ |
+| **悲しみ** | 日本語 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/ref2.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/sad.wav" /> | (sad)他の小隊長と比べて、私はまだ多くのことを学ばなくてはなりません......(sad)皆さんのペースに追いつけるよう精一杯努力いたしますわ。 |
 
-## 中国語の文1
-```
-人間灯火倒映湖中，她的渴望让静水泛起涟漪。若代价只是孤独，那就让这份愿望肆意流淌。
-流入她所注视的世间，也流入她如湖水般澄澈的目光。
-```
+## パラ言語効果（*新機能）
 
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ナヒーダ (原神)</td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/0_input.wav" /></td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/0_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>鍾離 (原神)</td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/1_input.wav" /></td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/1_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>フリナ (原神)</td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/2_input.wav" /></td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/2_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>ランダム話者1</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/4_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>ランダム話者2</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/5_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
+### 笑い声効果
 
+| サンプル | 言語 | プロンプト | 音声 |
+|---------|------|-----------|------|
+| **サンプル 1** | 中国語 | 大家好啊，(笑声)哈哈，我是从来不带节奏的血狼破军，今天来点大家想看的东西。 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/laugh1.wav" /> |
+| **サンプル 2** | 中国語 | (笑声)哈哈(笑声)，虽然说"三角洲行动"的策划说他们没有暗改(笑声)哈哈(笑声)，但是我相信，大家心里都有数。对不起，实在是太搞笑了，忍不住笑了出来。(笑声)哈哈(笑声) | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/laugh2.wav" /> |
+| **サンプル 3** | 英語 | (laughing)haha(laughing), though many people say that homeless cats need our help, (laughing)haha(laughing), but seldom do they really do something that is useful to the cats, (laughing)haha(laughing) sorry, but this is very interesting. | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/en/laugh.wav" /> |
 
-## 中国語の文2
+### 戦吼効果
+
+| サンプル | 言語 | プロンプト | 音声 |
+|---------|------|-----------|------|
+| **戦吼サンプル** | 英語 | (shouting)oh my god !!!(shouting)(shouting)(shouting), baby(shouting)you (shouting)are (shouting)a piece of sweet, soft(shouting), delicious cake!!! | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/en/shout.wav" /> |
+
+## 長文安定性テスト
+
+### 中国語長文テスト
+
+**中国語テストテキスト：**
 ```
 你们这个是什么群啊，你们这是害人不浅啊你们这个群！谁是群主，出来！真的太过分了。你们搞这个群干什么？
 我儿子每一科的成绩都不过那个平均分呐，他现在初二，你叫我儿子怎么办啊？他现在还不到高中啊？
@@ -59,56 +42,14 @@ v1.2のサンプルは[Bilibili](https://www.bilibili.com/video/BV1wz421B71D/)�
 一天到晚在上网。有什么意思啊？麻烦你重视一下你们的生活的目标啊？有一点学习目标行不行？一天到晚上网是不是人啊？
 ```
 
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ナヒーダ (原神)</td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/0_input.wav" /></td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/6_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>ランダム話者</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/7_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
+| テスト内容 | 話者/キャラクター | 入力音声 | 合成音声 |
+|-----------|------------------|----------|----------|
+| **長文テスト** | 夕（アークナイツ） | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/ref1.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/audio.wav" /> |
+| **ランダム話者** | ランダム（音量注意） | なし | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/zh/audio2.wav" /> |
 
+### 英語長文テスト
 
-## 中国語の文3
-```
-大家好，我是 Fish Audio 开发的开源文本转语音模型。经过十五万小时的数据训练，
-我已经能够熟练掌握中文、日语和英语，我的语言处理能力接近人类水平，声音表现形式丰富多变。
-作为一个仅有亿级参数的模型，我相信社区成员能够在个人设备上轻松运行和微调，让我成为您的私人语音助手。
-```
-
-
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ランダム話者</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/zh/8_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
-
-## 英語の文1
-
+**英語テストテキスト：**
 ```
 In the realm of advanced technology, the evolution of artificial intelligence stands as a 
 monumental achievement. This dynamic field, constantly pushing the boundaries of what 
@@ -116,110 +57,24 @@ machines can do, has seen rapid growth and innovation. From deciphering complex 
 patterns to driving cars autonomously, AI's applications are vast and diverse.
 ```
 
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ランダム話者1</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/en/0_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>ランダム話者2</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/en/1_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
+| テスト内容 | 話者 | 入力音声 | 合成音声 |
+|-----------|------|----------|----------|
+| **ランダム話者 1** | ランダム | なし | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/en/audio.wav" /> |
+| **ランダム話者 2** | ランダム | なし | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/en/audio2.wav" /> |
 
-## 英語の文2
+### 日本語長文テスト
+
+**日本語テストテキスト：**
 ```
-Hello everyone, I am an open-source text-to-speech model developed by 
-Fish Audio. After training with 150,000 hours of data, I have become proficient 
-in Chinese, Japanese, and English, and my language processing abilities 
-are close to human level. My voice is capable of a wide range of expressions. 
-As a model with only hundreds of millions of parameters, I believe community 
-members can easily run and fine-tune me on their personal devices, allowing 
-me to serve as your personal voice assistant.
+宇宙に始まりはあるが、終わりはない。無限。
+星にもまた始まりはあるが、自らの力をもって滅び逝く。有限。
+英知を持つ者こそ、最も愚かであること。歴史からも読み取れる。
+海に生ける魚は、陸の世界を知らない。彼らが英知を持てば、それもまた滅び逝く。
+人間が光の速さを超えるのは、魚たちが陸で生活を始めるよりも滑稽。
+これは抗える者たちに対する、神からの最後通告とも言えよう。
 ```
 
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ランダム話者</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/en/2_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
-
-## 日本語の文1
-
-```
-先進技術の領域において、人工知能の進化は画期的な成果として立っています。常に機械ができることの限界を
-押し広げているこのダイナミックな分野は、急速な成長と革新を見せています。複雑なデータパターンの解読か
-ら自動運転車の操縦まで、AIの応用は広範囲に及びます。
-```
-
-
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ランダム話者1</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/ja/0_output.wav" /></td>
-    </tr>
-    <tr>
-        <td>ランダム話者2</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/ja/1_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
-
-## 日本語の文2
-```
-皆さん、こんにちは。私はフィッシュオーディオによって開発されたオープンソースのテ
-キストから音声への変換モデルです。15万時間のデータトレーニングを経て、
-中国語、日本語、英語を熟知しており、言語処理能力は人間に近いレベルです。
-声の表現も多彩で豊かです。数億のパラメータを持つこのモデルは、コミュニティ
-のメンバーが個人のデバイスで簡単に実行し、微調整することができると
-信じています。これにより、私を個人の音声アシスタントとして活用できます。
-```
-
-<table>
-    <thead>
-    <tr>
-        <th>話者</th>
-        <th>入力音声</th>
-        <th>合成音声</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>ランダム話者</td>
-        <td> - </td>
-        <td><audio controls preload="auto" src="https://demo-r2.speech.fish.audio/v1.1-sft-large/ja/2_output.wav" /></td>
-    </tr>
-    </tbody>
-</table>
+| テスト内容 | 話者/キャラクター | 入力音声 | 合成音声 |
+|-----------|------------------|----------|----------|
+| **長文テスト** | 豊川祥子 | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/ref.wav" /> | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/audio.wav" /> |
+| **ランダム話者** | ランダム | なし | <audio controls preload="auto" src="https://demo-r2.speech.fish.audio/s1-20250920/ja/audio2.wav" /> |

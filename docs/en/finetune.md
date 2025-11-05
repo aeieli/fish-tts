@@ -1,8 +1,8 @@
 # Fine-tuning
 
-Obviously, when you opened this page, you were not satisfied with the performance of the few-shot pre-trained model. You want to fine-tune a model to improve its performance on your dataset.
+Obviously, when you opened this page, you were not satisfied with the performance of the zero-shot pre-trained model. You want to fine-tune a model to improve its performance on your dataset.
 
-In current version, you only need to finetune the 'LLAMA' part.
+In the current version, you only need to finetune the 'LLAMA' part.
 
 ## Fine-tuning LLAMA
 ### 1. Prepare the dataset
@@ -21,9 +21,9 @@ In current version, you only need to finetune the 'LLAMA' part.
     └── 38.79-40.85.mp3
 ```
 
-You need to convert your dataset into the above format and place it under `data`. The audio file can have the extensions `.mp3`, `.wav`, or `.flac`, and the annotation file should have the extensions `.lab`.
+You need to convert your dataset into the above format and place it under `data`. The audio file can have the extensions `.mp3`, `.wav`, or `.flac`, and the annotation file should have the extension `.lab`.
 
-!!! info "Dataset Format"
+!!! info
     The `.lab` annotation file only needs to contain the transcription of the audio, with no special formatting required. For example, if `hi.mp3` says "Hello, goodbye," then the `hi.lab` file would contain a single line of text: "Hello, goodbye."
 
 !!! warning
@@ -39,7 +39,7 @@ You need to convert your dataset into the above format and place it under `data`
 Make sure you have downloaded the VQGAN weights. If not, run the following command:
 
 ```bash
-huggingface-cli download fishaudio/fish-speech-1.5 --local-dir checkpoints/fish-speech-1.5
+huggingface-cli download fishaudio/openaudio-s1-mini --local-dir checkpoints/openaudio-s1-mini
 ```
 
 You can then run the following command to extract semantic tokens:
@@ -47,13 +47,12 @@ You can then run the following command to extract semantic tokens:
 ```bash
 python tools/vqgan/extract_vq.py data \
     --num-workers 1 --batch-size 16 \
-    --config-name "firefly_gan_vq" \
-    --checkpoint-path "checkpoints/fish-speech-1.5/firefly-gan-vq-fsq-8x1024-21hz-generator.pth"
+    --config-name "modded_dac_vq" \
+    --checkpoint-path "checkpoints/openaudio-s1-mini/codec.pth"
 ```
 
 !!! note
-    You can adjust `--num-workers` and `--batch-size` to increase extraction speed, but please make sure not to exceed your GPU memory limit.  
-    For the VITS format, you can specify a file list using `--filelist xxx.list`.
+    You can adjust `--num-workers` and `--batch-size` to increase extraction speed, but please make sure not to exceed your GPU memory limit.
 
 This command will create `.npy` files in the `data` directory, as shown below:
 
@@ -85,14 +84,14 @@ python tools/llama/build_dataset.py \
     --num-workers 16
 ```
 
-After the command finishes executing, you should see the `quantized-dataset-ft.protos` file in the `data` directory.
+After the command finishes executing, you should see the `protos` file in the `data` directory.
 
 ### 4. Finally, fine-tuning with LoRA
 
 Similarly, make sure you have downloaded the `LLAMA` weights. If not, run the following command:
 
 ```bash
-huggingface-cli download fishaudio/fish-speech-1.5 --local-dir checkpoints/fish-speech-1.5
+huggingface-cli download fishaudio/openaudio-s1-mini --local-dir checkpoints/openaudio-s1-mini
 ```
 
 Finally, you can start the fine-tuning by running the following command:
@@ -109,7 +108,7 @@ python fish_speech/train.py --config-name text2semantic_finetune \
 !!! note
     For Windows users, you can use `trainer.strategy.process_group_backend=gloo` to avoid `nccl` issues.
 
-After training is complete, you can refer to the [inference](inference.md) section to generate speech.
+After training is complete, you can refer to the [inference](inference.md) section to test your model.
 
 !!! info
     By default, the model will only learn the speaker's speech patterns and not the timbre. You still need to use prompts to ensure timbre stability.
@@ -120,9 +119,9 @@ After training, you need to convert the LoRA weights to regular weights before p
 ```bash
 python tools/llama/merge_lora.py \
 	--lora-config r_8_alpha_16 \
-	--base-weight checkpoints/fish-speech-1.5 \
+	--base-weight checkpoints/openaudio-s1-mini \
 	--lora-weight results/$project/checkpoints/step_000000010.ckpt \
-	--output checkpoints/fish-speech-1.5-yth-lora/
+	--output checkpoints/openaudio-s1-mini-yth-lora/
 ```
 !!! note
     You may also try other checkpoints. We suggest using the earliest checkpoint that meets your requirements, as they often perform better on out-of-distribution (OOD) data.

@@ -1,4 +1,14 @@
-# Introdução
+# OpenAudio (anteriormente Fish-Speech)
+
+<div align="center">
+
+<div align="center">
+
+<img src="../assets/openaudio.jpg" alt="OpenAudio" style="display: block; margin: 0 auto; width: 35%;"/>
+
+</div>
+
+<strong>Série Avançada de Modelos Text-to-Speech</strong>
 
 <div>
 <a target="_blank" href="https://discord.gg/Es5qTB9BcN">
@@ -12,199 +22,143 @@
 </a>
 </div>
 
-!!! warning
-    Não nos responsabilizamos por qualquer uso ilegal do código-fonte. Consulte as leis locais sobre DMCA (Digital Millennium Copyright Act) e outras leis relevantes em sua região. <br/>
-    Este repositório de código e os modelos são distribuídos sob a licença CC-BY-NC-SA-4.0.
+<strong>Experimente agora:</strong> <a href="https://fish.audio">Fish Audio Playground</a> | <strong>Saiba mais:</strong> <a href="https://openaudio.com">Site OpenAudio</a>
 
-<p align="center">
-   <img src="../assets/figs/diagram.png" width="75%">
-</p>
+</div>
 
-## Requisitos
+---
 
-- Memória da GPU: 4GB (para inferência), 8GB (para ajuste fino)
-- Sistema: Linux, Windows
+!!! note "Aviso de Licença"
+    Esta base de código é lançada sob a **Licença Apache** e todos os pesos dos modelos são lançados sob a **Licença CC-BY-NC-SA-4.0**. Consulte a [LICENÇA DO CÓDIGO](https://github.com/fishaudio/fish-speech/blob/main/LICENSE) e a [LICENÇA DO MODELO](https://spdx.org/licenses/CC-BY-NC-SA-4.0) para mais detalhes.
 
-## Configuração do Windows
+!!! warning "Aviso Legal"
+    Não assumimos nenhuma responsabilidade pelo uso ilegal da base de código. Consulte as leis locais sobre DMCA e outras leis relevantes.
 
-Usuários profissionais do Windows podem considerar o uso do WSL2 ou Docker para executar a base de código.
+## **Introdução**
 
-```bash
-# Crie um ambiente virtual Python 3.10, também é possível usar o virtualenv
-conda create -n fish-speech python=3.10
-conda activate fish-speech
+Estamos empolgados em anunciar que mudamos nossa marca para **OpenAudio** - introduzindo uma nova série de modelos avançados de Text-to-Speech que se baseia na fundação do Fish-Speech com melhorias significativas e novas capacidades.
 
-# Instale o pytorch
-pip3 install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
+**OpenAudio-S1-mini**: [Blog](https://openaudio.com/blogs/s1); [Vídeo](https://www.youtube.com/watch?v=SYuPvd7m06A); [Hugging Face](https://huggingface.co/fishaudio/openaudio-s1-mini);
 
-# Instale o fish-speech
-pip3 install -e .
+**Fish-Speech v1.5**: [Vídeo](https://www.bilibili.com/video/BV1EKiDYBE4o/); [Hugging Face](https://huggingface.co/fishaudio/fish-speech-1.5);
 
-# (Ativar aceleração) Instalar triton-windows
-pip install https://github.com/AnyaCoder/fish-speech/releases/download/v0.1.0/triton_windows-0.1.0-py3-none-any.whl
+## **Destaques**
+
+### **Qualidade TTS Excelente**
+
+Utilizamos as métricas Seed TTS Eval para avaliar o desempenho do modelo, e os resultados mostram que o OpenAudio S1 alcança **0.008 WER** e **0.004 CER** em texto inglês, que é significativamente melhor que modelos anteriores. (Inglês, avaliação automática, baseada na transcrição OpenAI gpt-4o, distância do falante usando Revai/pyannote-wespeaker-voxceleb-resnet34-LM)
+
+| Modelo | Taxa de Erro de Palavras (WER) | Taxa de Erro de Caracteres (CER) | Distância do Falante |
+|:-----:|:--------------------:|:-------------------------:|:----------------:|
+| **S1** | **0.008** | **0.004** | **0.332** |
+| **S1-mini** | **0.011** | **0.005** | **0.380** |
+
+### **Melhor Modelo no TTS-Arena2**
+
+OpenAudio S1 alcançou a **classificação #1** no [TTS-Arena2](https://arena.speechcolab.org/), o benchmark para avaliação de text-to-speech:
+
+<div align="center">
+    <img src="assets/Elo.jpg" alt="TTS-Arena2 Ranking" style="width: 75%;" />
+</div>
+
+### **Controle de Fala**
+OpenAudio S1 **suporta uma variedade de marcadores emocionais, de tom e especiais** para aprimorar a síntese de fala:
+
+- **Emoções básicas**:
+```
+(raivoso) (triste) (animado) (surpreso) (satisfeito) (encantado) 
+(com medo) (preocupado) (chateado) (nervoso) (frustrado) (deprimido)
+(empático) (envergonhado) (nojento) (comovido) (orgulhoso) (relaxado)
+(grato) (confiante) (interessado) (curioso) (confuso) (alegre)
 ```
 
-Usuários não profissionais do Windows podem considerar os seguintes métodos básicos para executar o projeto sem um ambiente Linux (com capacidades de compilação de modelo, ou seja, `torch.compile`):
-
-1. Extraia o pacote do projeto.
-2. Clique em `install_env.bat` para instalar o ambiente.
-3. Se você quiser ativar a aceleração de compilação, siga estas etapas:
-    1. Baixe o compilador LLVM nos seguintes links:
-        - [LLVM-17.0.6 (Download do site oficial)](https://huggingface.co/fishaudio/fish-speech-1/resolve/main/LLVM-17.0.6-win64.exe?download=true)
-        - [LLVM-17.0.6 (Download do site espelho)](https://hf-mirror.com/fishaudio/fish-speech-1/resolve/main/LLVM-17.0.6-win64.exe?download=true)
-        - Após baixar o `LLVM-17.0.6-win64.exe`, clique duas vezes para instalar, selecione um local de instalação apropriado e, o mais importante, marque a opção `Add Path to Current User` para adicionar a variável de ambiente.
-        - Confirme que a instalação foi concluída.
-    2. Baixe e instale o Microsoft Visual C++ Redistributable para resolver possíveis problemas de arquivos .dll ausentes:
-        - [Download do MSVC++ 14.40.33810.0](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-    3. Baixe e instale o Visual Studio Community Edition para obter as ferramentas de compilação do MSVC++ e resolver as dependências dos arquivos de cabeçalho do LLVM:
-        - [Download do Visual Studio](https://visualstudio.microsoft.com/pt-br/downloads/)
-        - Após instalar o Visual Studio Installer, baixe o Visual Studio Community 2022.
-        - Conforme mostrado abaixo, clique no botão `Modificar`, encontre a opção `Desenvolvimento de área de trabalho com C++` e selecione para fazer o download.
-    4. Baixe e instale o [CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-12-1-0-download-archive?target_os=Windows&target_arch=x86_64)
-4. Clique duas vezes em `start.bat` para abrir a interface de gerenciamento WebUI de inferência de treinamento. Se necessário, você pode modificar as `API_FLAGS` conforme mostrado abaixo.
-
-!!! info "Opcional"
-    Você quer iniciar o WebUI de inferência?
-    Edite o arquivo `API_FLAGS.txt` no diretório raiz do projeto e modifique as três primeiras linhas como segue:
-    ```
-    --infer
-    # --api
-    # --listen ...
-    ...
-    ```
-
-!!! info "Opcional"
-    Você quer iniciar o servidor de API?
-    Edite o arquivo `API_FLAGS.txt` no diretório raiz do projeto e modifique as três primeiras linhas como segue:
-
-    ```
-    # --infer
-    --api
-    --listen ...
-    ...
-    ```
-
-!!! info "Opcional"
-    Clique duas vezes em `run_cmd.bat` para entrar no ambiente de linha de comando conda/python deste projeto.
-
-
-## Configuração para Linux
-
-Para mais detalhes, consulte [pyproject.toml](../../pyproject.toml).
-```bash
-# Crie um ambiente virtual python 3.10, você também pode usar virtualenv
-conda create -n fish-speech python=3.10
-conda activate fish-speech
-
-# Instale o pytorch
-pip3 install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1
-
-# Para os Usuário do Ubuntu / Debian: Instale o sox + ffmpeg
-apt install libsox-dev ffmpeg
-
-# Para os Usuário do Ubuntu / Debian: Instale o pyaudio
-apt install build-essential \
-    cmake \
-    libasound-dev \
-    portaudio19-dev \
-    libportaudio2 \
-    libportaudiocpp0
-    
-# Instale o fish-speech
-pip3 install -e .[stable]
+- **Emoções avançadas**:
+```
+(desdenhoso) (infeliz) (ansioso) (histérico) (indiferente) 
+(impaciente) (culpado) (desprezível) (em pânico) (furioso) (relutante)
+(entusiasmado) (desaprovador) (negativo) (negando) (espantado) (sério)
+(sarcástico) (conciliador) (consolador) (sincero) (zombeteiro)
+(hesitante) (cedendo) (doloroso) (constrangido) (divertido)
 ```
 
-## Configuração para macos
+(Suporte para inglês, chinês e japonês agora, e mais idiomas em breve!)
 
-Se você quiser realizar inferências no MPS, adicione a flag `--device mps`.
-Para uma comparação das velocidades de inferência, consulte [este PR](https://github.com/fishaudio/fish-speech/pull/461#issuecomment-2284277772).
-
-!!! aviso
-    A opção `compile` não é oficialmente suportada em dispositivos Apple Silicon, então não há garantia de que a velocidade de inferência irá melhorar.
-
-```bash
-# create a python 3.10 virtual environment, you can also use virtualenv
-conda create -n fish-speech python=3.10
-conda activate fish-speech
-# install pytorch
-pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1
-# install fish-speech
-pip install -e .[stable]
+- **Marcadores de tom**:
+```
+(em tom de pressa) (gritando) (berrando) (sussurrando) (tom suave)
 ```
 
-## Configuração do Docker
+- **Efeitos sonoros especiais**:
+```
+(rindo) (gargalhando) (soluçando) (chorando alto) (suspirando) (ofegante)
+(gemendo) (risada da multidão) (risada de fundo) (risada da plateia)
+```
 
-1. Instale o NVIDIA Container Toolkit:
+Você também pode usar Ha,ha,ha para controlar, há muitos outros casos esperando para serem explorados por você mesmo.
 
-    Para usar a GPU com Docker para treinamento e inferência de modelos, você precisa instalar o NVIDIA Container Toolkit:
+### **Dois Tipos de Modelos**
 
-    Para usuários Ubuntu:
+Oferecemos duas variantes de modelo para atender diferentes necessidades:
 
-    ```bash
-    # Adicione o repositório remoto
-    curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-        && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-    # Instale o nvidia-container-toolkit
-    sudo apt-get update
-    sudo apt-get install -y nvidia-container-toolkit
-    # Reinicie o serviço Docker
-    sudo systemctl restart docker
-    ```
+- **OpenAudio S1 (4B parâmetros)**: Nosso modelo principal com todas as funcionalidades disponível em [fish.audio](https://fish.audio), oferecendo a mais alta qualidade de síntese de fala com todas as características avançadas.
 
-    Para usuários de outras distribuições Linux, consulte o guia de instalação: [NVIDIA Container Toolkit Install-guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+- **OpenAudio S1-mini (0.5B parâmetros)**: Uma versão destilada com capacidades principais, disponível no [Hugging Face Space](https://huggingface.co/spaces/fishaudio/openaudio-s1-mini), otimizada para inferência mais rápida mantendo excelente qualidade.
 
-2. Baixe e execute a imagem fish-speech
+Tanto o S1 quanto o S1-mini incorporam Aprendizado por Reforço Online com Feedback Humano (RLHF).
 
-    ```shell
-    # Baixe a imagem
-    docker pull fishaudio/fish-speech:latest-dev
-    # Execute a imagem
-    docker run -it \
-        --name fish-speech \
-        --gpus all \
-        -p 7860:7860 \
-        fishaudio/fish-speech:latest-dev \
-        zsh
-    # Se precisar usar outra porta, modifique o parâmetro -p para YourPort:7860
-    ```
+## **Características**
 
-3. Baixe as dependências do modelo
+1. **TTS Zero-shot e Few-shot:** Insira uma amostra vocal de 10 a 30 segundos para gerar saída TTS de alta qualidade. **Para diretrizes detalhadas, veja [Melhores Práticas de Clonagem de Voz](https://docs.fish.audio/text-to-speech/voice-clone-best-practices).**
 
-    Certifique-se de estar no terminal do contêiner Docker e, em seguida, baixe os modelos necessários `vqgan` e `llama` do nosso repositório HuggingFace.
+2. **Suporte Multilíngue e Cross-lingual:** Simplesmente copie e cole texto multilíngue na caixa de entrada—não precisa se preocupar com o idioma. Atualmente suporta inglês, japonês, coreano, chinês, francês, alemão, árabe e espanhol.
 
-    ```bash
-    huggingface-cli download fishaudio/fish-speech-1.5 --local-dir checkpoints/fish-speech-1.5
-    ```
+3. **Sem Dependência de Fonemas:** O modelo tem fortes capacidades de generalização e não depende de fonemas para TTS. Pode lidar com texto em qualquer script de idioma.
 
-4. Configure as variáveis de ambiente e acesse a WebUI
+4. **Altamente Preciso:** Alcança uma baixa Taxa de Erro de Caracteres (CER) de cerca de 0,4% e Taxa de Erro de Palavras (WER) de cerca de 0,8% para Seed-TTS Eval.
 
-    No terminal do contêiner Docker, digite `export GRADIO_SERVER_NAME="0.0.0.0"` para permitir o acesso externo ao serviço gradio dentro do Docker.
-    Em seguida, no terminal do contêiner Docker, digite `python tools/run_webui.py` para iniciar o serviço WebUI.
+5. **Rápido:** Com aceleração fish-tech, o fator de tempo real é aproximadamente 1:5 em um laptop Nvidia RTX 4060 e 1:15 em um Nvidia RTX 4090.
 
-    Se estiver usando WSL ou MacOS, acesse [http://localhost:7860](http://localhost:7860) para abrir a interface WebUI.
+6. **Inferência WebUI:** Apresenta uma interface web fácil de usar baseada em Gradio, compatível com Chrome, Firefox, Edge e outros navegadores.
 
-    Se estiver implantando em um servidor, substitua localhost pelo IP do seu servidor.
+7. **Inferência GUI:** Oferece uma interface gráfica PyQt6 que funciona perfeitamente com o servidor API. Suporta Linux, Windows e macOS. [Ver GUI](https://github.com/AnyaCoder/fish-speech-gui).
 
-## Histórico de Alterações
-- 10/09/2024: Fish-Speech atualizado para a versão 1.4, aumentado o tamanho do conjunto de dados, quantizer n_groups 4 -> 8.
-- 02/07/2024: Fish-Speech atualizado para a versão 1.2, removido o Decodificador VITS e aprimorado consideravelmente a capacidade de zero-shot.
-- 10/05/2024: Fish-Speech atualizado para a versão 1.1, implementado o decodificador VITS para reduzir a WER e melhorar a similaridade de timbre.
-- 22/04/2024: Finalizada a versão 1.0 do Fish-Speech, modificados significativamente os modelos VQGAN e LLAMA.
-- 28/12/2023: Adicionado suporte para ajuste fino `lora`.
-- 27/12/2023: Adicionado suporte para `gradient checkpointing`, `causual sampling` e `flash-attn`.
-- 19/12/2023: Atualizada a interface web e a API HTTP.
-- 18/12/2023: Atualizada a documentação de ajuste fino e exemplos relacionados.
-- 17/12/2023: Atualizado o modelo `text2semantic`, suportando o modo sem fonemas.
-- 13/12/2023: Versão beta lançada, incluindo o modelo VQGAN e um modelo de linguagem baseado em LLAMA (suporte apenas a fonemas).
+8. **Amigável para Deploy:** Configure facilmente um servidor de inferência com suporte nativo para Linux, Windows (MacOS em breve), minimizando a perda de velocidade.
 
-## Agradecimentos
+## **Mídia e Demos**
 
-- [VITS2 (daniilrobnikov)](https://github.com/daniilrobnikov/vits2)
-- [Bert-VITS2](https://github.com/fishaudio/Bert-VITS2)
-- [GPT VITS](https://github.com/innnky/gpt-vits)
-- [MQTTS](https://github.com/b04901014/MQTTS)
-- [GPT Fast](https://github.com/pytorch-labs/gpt-fast)
-- [Transformers](https://github.com/huggingface/transformers)
-- [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
+<!-- <div align="center"> -->
+
+<h3><strong>Mídia Social</strong></h3>
+<a href="https://x.com/FishAudio/status/1929915992299450398" target="_blank">
+    <img src="https://img.shields.io/badge/𝕏-Demo_Mais_Recente-black?style=for-the-badge&logo=x&logoColor=white" alt="Latest Demo on X" />
+</a>
+
+<h3><strong>Demos Interativos</strong></h3>
+
+<a href="https://fish.audio" target="_blank">
+    <img src="https://img.shields.io/badge/Fish_Audio-Experimente_OpenAudio_S1-blue?style=for-the-badge" alt="Try OpenAudio S1" />
+</a>
+<a href="https://huggingface.co/spaces/fishaudio/openaudio-s1-mini" target="_blank">
+    <img src="https://img.shields.io/badge/Hugging_Face-Experimente_S1_Mini-yellow?style=for-the-badge" alt="Try S1 Mini" />
+</a>
+
+<h3><strong>Showcases em Vídeo</strong></h3>
+<div align="center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/SYuPvd7m06A" title="OpenAudio S1 Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+## **Documentação**
+
+### Início Rápido
+- [Configurar Ambiente](install.md) - Configure seu ambiente de desenvolvimento
+- [Guia de Inferência](inference.md) - Execute o modelo e gere fala
+
+## **Comunidade e Suporte**
+
+- **Discord:** Junte-se à nossa [comunidade Discord](https://discord.gg/Es5qTB9BcN)
+- **Site:** Visite [OpenAudio.com](https://openaudio.com) para as últimas atualizações
+- **Experimente Online:** [Fish Audio Playground](https://fish.audio)
+
+## Modelos
+
+O OpenAudio S1 é o primeiro modelo da série OpenAudio. É um vocoder VQ-GAN de descodificador duplo que pode reconstruir áudio a partir de códigos VQ.

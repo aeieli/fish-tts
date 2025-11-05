@@ -8,7 +8,7 @@ description = "Fish Speech"
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["TTS", "Speech"]
-license = {text = "CC BY-NC-SA 4.0"}
+license = "Apache-2.0"
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
@@ -31,28 +31,89 @@ dependencies = [
     "loguru>=0.6.0",
     "loralib>=0.1.2",
     "pyrootutils>=1.0.4",
-    "vector_quantize_pytorch==1.14.24",
     "resampy>=0.4.3",
     "einx[torch]==0.2.2",
     "zstandard>=0.22.0",
     "pydub",
     "pyaudio",
-    "faster_whisper",
     "modelscope==1.17.1",
-    "funasr==1.1.5",
     "opencc-python-reimplemented==0.1.7",
     "silero-vad",
     "ormsgpack",
     "tiktoken>=0.8.0",
     "pydantic==2.9.2",
     "cachetools",
+    "descript-audio-codec",
+    "descript-audiotools"
 ]
 
 [project.optional-dependencies]
 stable = [
-    "torch<=2.4.1",
+    "torch<2.9.0",
     "torchaudio",
 ]
+cpu = [
+  "torch>=2.5.1",
+  "torchaudio",
+]
+cu126 = [
+  "torch>=2.5.1",
+  "torchaudio",
+]
+cu128 = [
+  "torch>=2.5.1",
+  "torchaudio",
+]
+cu129 = [
+  "torch>=2.5.1",
+  "torchaudio",
+]
+
+[tool.uv]
+conflicts = [
+  [
+    { extra = "cpu" },
+    { extra = "cu126" },
+    { extra = "cu128" },
+    { extra = "cu129" },
+  ],
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", extra = "cpu" },
+  { index = "pytorch-cu126", extra = "cu126" },
+  { index = "pytorch-cu128", extra = "cu128" },
+  { index = "pytorch-cu129", extra = "cu129" },
+]
+torchaudio = [
+  { index = "pytorch-cpu", extra = "cpu" },
+  { index = "pytorch-cu126", extra = "cu126" },
+  { index = "pytorch-cu128", extra = "cu128" },
+  { index = "pytorch-cu129", extra = "cu129" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
+
+
 
 [build-system]
 requires = ["setuptools", "setuptools-scm"]
@@ -60,3 +121,5 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["fish_speech", "tools"]
+
+[tool.setuptools_scm]

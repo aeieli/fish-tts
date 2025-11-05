@@ -15,13 +15,10 @@ from lightning import LightningDataModule
 from torch.distributed import get_rank, get_world_size, is_initialized
 from torch.utils.data import DataLoader, Dataset, IterableDataset, get_worker_info
 
-from fish_speech.conversation import (
-    CODEBOOK_PAD_TOKEN_ID,
-    Conversation,
-    Message,
-    TextPart,
-    VQPart,
-)
+from fish_speech.content_sequence import ContentSequence, TextPart, VQPart
+
+CODEBOOK_PAD_TOKEN_ID = 0
+
 from fish_speech.datasets.protos.text_data_pb2 import SampledData
 from fish_speech.datasets.protos.text_data_stream import read_pb_stream
 from fish_speech.text.clean import clean_text
@@ -189,52 +186,43 @@ class AutoTextSemanticInstructionIterableDataset(IterableDataset):
         self,
         sentences: list[str],
         semantics: list,
-        # speaker: Optional[str] = None,
+        # speaker: Optional[str] = None, # speaker is now handled by tokens
         skip_text: bool = False,
     ):
-        # if speaker is None:
-        #     speaker = "assistant"
 
-        messages = [
-            Message(
-                role="system",
-                parts=[TextPart(text="Speak out the provided text.")],
-                # add_im_end=False,
-                # cal_loss=True,
-            )
-        ]
+        seq = ContentSequence()
 
+        seq.append(TextPart(text="Speak out the provided text."))
+
+        # User's turn
         cated_sentences = " ".join(sentences)
         if skip_text:
             cated_sentences = "<|skip_text|>"
 
-        messages.append(
-            Message(
-                role="user",
-                parts=[TextPart(text=cated_sentences)],
-                # cal_loss=True,
-            )
+        seq.append(
+            TextPart(text=f"<|speaker:user|> {cated_sentences}"),
+            add_end=True,
         )
 
+        # Assistant's turn
         vq_codes = [x.values for x in semantics[0]]
         vq_codes_tensor = torch.tensor(vq_codes).to(torch.int32)
-        vqpart = VQPart(codes=vq_codes_tensor)
-        messages.append(
-            Message(
-                role="assistant",
-                parts=[TextPart(text="<|voice|>"), vqpart],
-                cal_loss=True,
-            )
+
+        # 将 cal_loss=True 直接关联到 VQPart 上，这比之前更精确
+        vq_part = VQPart(codes=vq_codes_tensor, cal_loss=True)
+
+        # 将多个 parts 一起添加，最后也加上 <|im_end|>
+        seq.append(
+            [TextPart(text="<|speaker:assistant|> <|voice|>"), vq_part],
+            add_end=True,
+        )
+
+        encoded = seq.encode(
+            tokenizer=self.tokenizer,
         )
 
         num_codebooks = (
             len(semantics[0]) if self.num_codebooks is None else self.num_codebooks
-        )
-
-        conversation = Conversation(messages=messages)
-        # conversation.visualize(tokenizer=self.tokenizer)
-        encoded = conversation.encode(
-            tokenizer=self.tokenizer,
         )
 
         tokens_raw = encoded.tokens

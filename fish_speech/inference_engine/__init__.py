@@ -9,13 +9,12 @@ from loguru import logger
 from fish_speech.inference_engine.reference_loader import ReferenceLoader
 from fish_speech.inference_engine.utils import InferenceResult, wav_chunk_header
 from fish_speech.inference_engine.vq_manager import VQManager
+from fish_speech.models.dac.modded_dac import DAC
 from fish_speech.models.text2semantic.inference import (
     GenerateRequest,
     GenerateResponse,
     WrappedGenerateResponse,
 )
-from fish_speech.models.vqgan.modules.firefly import FireflyArchitecture
-from fish_speech.text.chn_text_norm.text import Text as ChnNormedText
 from fish_speech.utils import autocast_exclude_mps, set_seed
 from fish_speech.utils.schema import ServeTTSRequest
 
@@ -25,7 +24,7 @@ class TTSInferenceEngine(ReferenceLoader, VQManager):
     def __init__(
         self,
         llama_queue: queue.Queue,
-        decoder_model: FireflyArchitecture,
+        decoder_model: DAC,
         precision: torch.dtype,
         compile: bool,
     ) -> None:
@@ -66,7 +65,10 @@ class TTSInferenceEngine(ReferenceLoader, VQManager):
         response_queue = self.send_Llama_request(req, prompt_tokens, prompt_texts)
 
         # Get the sample rate from the decoder model
-        sample_rate = self.decoder_model.spec_transform.sample_rate
+        if hasattr(self.decoder_model, "spec_transform"):
+            sample_rate = self.decoder_model.spec_transform.sample_rate
+        else:
+            sample_rate = self.decoder_model.sample_rate
 
         # If streaming, send the header
         if req.streaming:
@@ -150,18 +152,13 @@ class TTSInferenceEngine(ReferenceLoader, VQManager):
         request = dict(
             device=self.decoder_model.device,
             max_new_tokens=req.max_new_tokens,
-            text=(
-                req.text
-                if not req.normalize
-                else ChnNormedText(raw_text=req.text).normalize()
-            ),
+            text=req.text,
             top_p=req.top_p,
             repetition_penalty=req.repetition_penalty,
             temperature=req.temperature,
             compile=self.compile,
             iterative_prompt=req.chunk_length > 0,
             chunk_length=req.chunk_length,
-            max_length=4096,
             prompt_tokens=prompt_tokens,
             prompt_text=prompt_texts,
         )
