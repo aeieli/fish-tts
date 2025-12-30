@@ -187,18 +187,23 @@ async def tts(req: Annotated[ServeTTSRequest, Body(exclusive=True)]):
         )
 
 
-@routes.http.post("/v1/references/add")
-async def add_reference(
-    id: str = Body(...), audio: UploadFile = Body(...), text: str = Body(...)
+# Temporarily disabled due to Kui framework parameter parsing issue
+# This route will be fixed in a future update
+# @routes.http.post("/v1/references/add")
+async def add_reference_disabled(
+    audio: UploadFile,
+    ref_id: str = Body(..., embed=True),
+    text: str = Body(..., embed=True)
 ):
     """
     Add a new reference voice with audio file and text.
+    (Currently disabled - use reference_id in /v1/tts instead)
     """
     temp_file_path = None
 
     try:
         # Validate input parameters
-        if not id or not id.strip():
+        if not ref_id or not ref_id.strip():
             raise ValueError("Reference ID cannot be empty")
 
         if not text or not text.strip():
@@ -220,40 +225,40 @@ async def add_reference(
             temp_file_path = temp_file.name
 
         # Add the reference using the engine's reference loader
-        engine.add_reference(id, temp_file_path, text)
+        engine.add_reference(ref_id, temp_file_path, text)
 
         response = AddReferenceResponse(
             success=True,
-            message=f"Reference voice '{id}' added successfully",
-            reference_id=id,
+            message=f"Reference voice '{ref_id}' added successfully",
+            reference_id=ref_id,
         )
         return format_response(response)
 
     except FileExistsError as e:
-        logger.warning(f"Reference ID '{id}' already exists: {e}")
+        logger.warning(f"Reference ID '{ref_id}' already exists: {e}")
         response = AddReferenceResponse(
             success=False,
-            message=f"Reference ID '{id}' already exists",
-            reference_id=id,
+            message=f"Reference ID '{ref_id}' already exists",
+            reference_id=ref_id,
         )
         return format_response(response, status_code=409)  # Conflict
 
     except ValueError as e:
-        logger.warning(f"Invalid input for reference '{id}': {e}")
-        response = AddReferenceResponse(success=False, message=str(e), reference_id=id)
+        logger.warning(f"Invalid input for reference '{ref_id}': {e}")
+        response = AddReferenceResponse(success=False, message=str(e), reference_id=ref_id)
         return format_response(response, status_code=400)
 
     except (FileNotFoundError, OSError) as e:
-        logger.error(f"File system error for reference '{id}': {e}")
+        logger.error(f"File system error for reference '{ref_id}': {e}")
         response = AddReferenceResponse(
-            success=False, message="File system error occurred", reference_id=id
+            success=False, message="File system error occurred", reference_id=ref_id
         )
         return format_response(response, status_code=500)
 
     except Exception as e:
-        logger.error(f"Unexpected error adding reference '{id}': {e}", exc_info=True)
+        logger.error(f"Unexpected error adding reference '{ref_id}': {e}", exc_info=True)
         response = AddReferenceResponse(
-            success=False, message="Internal server error occurred", reference_id=id
+            success=False, message="Internal server error occurred", reference_id=ref_id
         )
         return format_response(response, status_code=500)
 
@@ -268,7 +273,7 @@ async def add_reference(
                 )
 
 
-@routes.http.get("/v1/references/list")
+# @routes.http.get("/v1/references/list")
 async def list_references():
     """
     Get a list of all available reference voice IDs.
@@ -297,7 +302,7 @@ async def list_references():
         return format_response(response, status_code=500)
 
 
-@routes.http.delete("/v1/references/delete")
+# @routes.http.delete("/v1/references/delete")
 async def delete_reference(reference_id: str = Body(...)):
     """
     Delete a reference voice by ID.
@@ -359,7 +364,7 @@ async def delete_reference(reference_id: str = Body(...)):
         return format_response(response, status_code=500)
 
 
-@routes.http.post("/v1/references/update")
+# @routes.http.post("/v1/references/update")
 async def update_reference(
     old_reference_id: str = Body(...), new_reference_id: str = Body(...)
 ):
